@@ -11,7 +11,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-type server struct{}
+type server struct {
+	Sensor *sensor.Sensor
+}
 
 func (s *server) TempSensor(req *sensorpb.SensorRequest, stream sensorpb.Sensor_TempSensorServer) error {
 	for {
@@ -27,7 +29,7 @@ func (s *server) TempSensor(req *sensorpb.SensorRequest, stream sensorpb.Sensor_
 	return nil
 }
 
-func (*server) HumiditySensor(req *sensorpb.SensorRequest, stream sensorpb.Sensor_HumiditySensorServer) error {
+func (s *server) HumiditySensor(req *sensorpb.SensorRequest, stream sensorpb.Sensor_HumiditySensorServer) error {
 	for {
 		time.Sleep(2 * time.Second)
 
