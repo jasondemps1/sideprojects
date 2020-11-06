@@ -1,25 +1,34 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 
+import { SensorRequest, SensorResponse } from "./sensorpb/sensor_pb"
+import { SensorClient } from "./sensorpb/sensor_grpc_web_pb"
+
+var client = new SensorClient('http://localhost:8000')
+
 function App() {
+  const [temp, setTemp] = useState(-9999)
+
+  const getTemp = () => {
+    console.log("called")
+
+    var sensorRequest = new SensorRequest()
+    var stream = client.tempSensor(sensorRequest, {})
+
+    stream.on('data', function(response) {
+      setTemp(response.getValue())
+    });
+  };
+
+  useEffect(()=>{
+    getTemp()
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      Temperature : {temp} F
     </div>
-  );
+  )
 }
 
 export default App;
