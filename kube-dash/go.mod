@@ -1,4 +1,4 @@
-module github.com/jasondemps1/sideprojects/kube-dash
+module github.com/jasondemps1/sideprojects/tree/master/kube-dash
 
 go 1.15
 
