@@ -6,8 +6,9 @@ import (
 	"net"
 	"time"
 
-	sensor "github.com/jasondemps1/sideprojects/tree/master/kube-dash/server/sensor"
-	sensorpb "github.com/jasondemps1/sideprojects/tree/master/kube-dash/server/sensor/sensorpb/protos"
+	sensor "kube-dash/server/sensor"
+	sensorpb "kube-dash/server/sensorpb/protos"
+
 	"google.golang.org/grpc"
 )
 
