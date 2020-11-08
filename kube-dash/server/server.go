@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	sensor "kube-dash/server/sensor"
@@ -20,7 +21,10 @@ func (s *server) TempSensor(req *sensorpb.SensorRequest, stream sensorpb.Sensor_
 	for {
 		time.Sleep(5 * time.Second)
 
-		temp := s.Sensor.GetTempSensor()
+		log.Println("Getting Temp Sensor value.")
+
+		temp := int64(123) //s.Sensor.GetTempSensor()
+		log.Println("Sending Temp Sensor value.")
 		err := stream.Send(&sensorpb.SensorResponse{Value: temp})
 
 		if err != nil {
@@ -34,7 +38,9 @@ func (s *server) HumiditySensor(req *sensorpb.SensorRequest, stream sensorpb.Sen
 	for {
 		time.Sleep(2 * time.Second)
 
-		humid := s.Sensor.GetHumiditySensor()
+		log.Println("Getting Humidity Sensor value.")
+		humid := int64(456) //s.Sensor.GetHumiditySensor()
+		log.Println("Sending Humidity Sensor value.")
 		err := stream.Send(&sensorpb.SensorResponse{Value: humid})
 
 		if err != nil {
@@ -45,14 +51,25 @@ func (s *server) HumiditySensor(req *sensorpb.SensorRequest, stream sensorpb.Sen
 }
 
 var (
-	port int = 8080
+	defaultIP   string = ""
+	defaultPort string = "8000"
 )
 
 func main() {
+	ip := defaultIP
+	if envIP := os.Getenv("SERVER_ADDRESS"); envIP != "" {
+		ip = envIP
+	}
+
+	port := defaultPort
+	if envPort := os.Getenv("SERVER_PORT"); envPort != "" {
+		port = envPort
+	}
+
 	sns := sensor.NewSensor()
 	sns.StartMonitoring()
 
-	addr := fmt.Sprintf("0.0.0.0:%d", port)
+	addr := fmt.Sprintf("%s:%s", ip, port)
 
 	lis, err := net.Listen("tcp", addr)
 
@@ -63,7 +80,7 @@ func main() {
 	s := grpc.NewServer()
 	sensorpb.RegisterSensorServer(s, &server{})
 
-	log.Printf("Starting server on port :%d\n", port)
+	log.Printf("Starting server on: %s\n", addr)
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Error while serving : %v", err)

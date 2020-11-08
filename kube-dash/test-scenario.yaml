@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-data
+data:
+  listener.address: "0.0.0.0"
+  listener.port: "8000"
+  cluster.address: "10.0.94.161"
+  cluster.port: "8081"
+  server.address: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sensor-server
+  labels:
+    app: sensor-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sensor-server
+  template:
+    metadata:
+      labels:
+        app: sensor-server
+    spec:
+      containers:
+      - name: sensor-server
+        image: acrsandbox1.azurecr.io/sensor-server:latest
+        imagePullPolicy: Always
+        env:
+        - name: SERVER_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: envoy-data
+              key: server.address
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: envoy-data
+              key: cluster.port
+        ports:
+        - containerPort: 8081
+          name: web
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: sensor-server
+  labels:
+    app: sensor-server
+spec:
+  selector:
+    app: sensor-server
+  ports:
+  - name: web
+    targetPort: web
+    port: 8081
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-web-proxy
+  labels:
+    app: grpc-web-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-web-proxy
+  template:
+    metadata:
+      labels:
+        app: grpc-web-proxy
+    spec:
+      containers:
+      - name: grpc-web-proxy
+        image: acrsandbox1.azurecr.io/grpc-envoy:latest
+        imagePullPolicy: Always
+        env:
+        - name: LISTENER_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: envoy-data
+              key: listener.address
+        - name: LISTENER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: envoy-data
+              key: listener.port
+        - name: CLUSTER_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: envoy-data
+              key: cluster.address
+        - name: CLUSTER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: envoy-data
+              key: cluster.port
+        ports:
+          - containerPort: 8000
+            name: listener
+          - containerPort: 8081
+            name: cluster
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: grpc-web-proxy
+  labels:
+    app: grpc-web-proxy
+spec:
+  selector:
+    app: grpc-web-proxy
+  ports:
+  - name: web
+    port: 8000
+  type: LoadBalancer

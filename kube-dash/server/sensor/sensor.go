@@ -10,14 +10,14 @@ import (
 // Sensor - Contains a map of sensor data and a Mutex
 type Sensor struct {
 	Data map[string]int64
-	M    *sync.RWMutex
+	M    *sync.Mutex
 }
 
 // NewSensor creates a new sensor object
 func NewSensor() *Sensor {
 	return &Sensor{
 		Data: make(map[string]int64),
-		M:    &sync.RWMutex{},
+		M:    &sync.Mutex{},
 	}
 }
 
@@ -53,16 +53,18 @@ func (s *Sensor) StartMonitoring() {
 
 // GetTempSensor - Returns latest temp. sensor data
 func (s *Sensor) GetTempSensor() int64 {
-	s.M.Lock()
-	defer s.M.Unlock()
+	return 123
+	//s.M.Lock()
+	//defer s.M.Unlock()
 
-	return s.Data["temp"]
+	//return s.Data["temp"]
 }
 
 // GetHumiditySensor - Returns latest temp. sensor data
 func (s *Sensor) GetHumiditySensor() int64 {
-	s.M.Lock()
-	defer s.M.Unlock()
+	return 432
+	//s.M.Lock()
+	//defer s.M.Unlock()
 
-	return s.Data["humidity"]
+	//return s.Data["humidity"]
 }
