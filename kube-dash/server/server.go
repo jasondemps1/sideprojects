@@ -23,7 +23,7 @@ func (s *server) TempSensor(req *sensorpb.SensorRequest, stream sensorpb.Sensor_
 
 		log.Println("Getting Temp Sensor value.")
 
-		temp := int64(123) //s.Sensor.GetTempSensor()
+		temp := s.Sensor.GetTempSensor()
 		log.Println("Sending Temp Sensor value.")
 		err := stream.Send(&sensorpb.SensorResponse{Value: temp})
 
@@ -39,7 +39,7 @@ func (s *server) HumiditySensor(req *sensorpb.SensorRequest, stream sensorpb.Sen
 		time.Sleep(2 * time.Second)
 
 		log.Println("Getting Humidity Sensor value.")
-		humid := int64(456) //s.Sensor.GetHumiditySensor()
+		humid := s.Sensor.GetHumiditySensor()
 		log.Println("Sending Humidity Sensor value.")
 		err := stream.Send(&sensorpb.SensorResponse{Value: humid})
 
@@ -52,7 +52,7 @@ func (s *server) HumiditySensor(req *sensorpb.SensorRequest, stream sensorpb.Sen
 
 var (
 	defaultIP   string = ""
-	defaultPort string = "8000"
+	defaultPort string = "8080"
 )
 
 func main() {

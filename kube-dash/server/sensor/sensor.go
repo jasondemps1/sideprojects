@@ -53,7 +53,7 @@ func (s *Sensor) StartMonitoring() {
 
 // GetTempSensor - Returns latest temp. sensor data
 func (s *Sensor) GetTempSensor() int64 {
-	return 123
+	return int64(931)
 	//s.M.Lock()
 	//defer s.M.Unlock()
 
@@ -62,7 +62,7 @@ func (s *Sensor) GetTempSensor() int64 {
 
 // GetHumiditySensor - Returns latest temp. sensor data
 func (s *Sensor) GetHumiditySensor() int64 {
-	return 432
+	return int64(498)
 	//s.M.Lock()
 	//defer s.M.Unlock()
 
