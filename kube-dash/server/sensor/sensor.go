@@ -1,23 +1,35 @@
 package sensor
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"sync"
 	"time"
 )
 
+type SensorType int
+
+const (
+	temp SensorType = iota
+	humidity
+)
+
+func (st SensorType) String() string {
+	return [...]string{"temp", "humidity"}[st]
+}
+
 // Sensor - Contains a map of sensor data and a Mutex
 type Sensor struct {
 	Data map[string]int64
-	M    *sync.Mutex
+	M    sync.RWMutex
 }
 
 // NewSensor creates a new sensor object
 func NewSensor() *Sensor {
 	return &Sensor{
 		Data: make(map[string]int64),
-		M:    &sync.Mutex{},
+		//M:    sync.RWMutex{},
 	}
 }
 
@@ -25,7 +37,7 @@ func NewSensor() *Sensor {
 func (s *Sensor) SetTempSensor() {
 	for {
 		s.M.Lock()
-		s.Data["temp"] = int64(rand.Intn(120))
+		s.Data[fmt.Sprintf("%s", SensorType(temp))] = int64(rand.Intn(120))
 		s.M.Unlock()
 
 		time.Sleep(5 * time.Second)
@@ -36,7 +48,8 @@ func (s *Sensor) SetTempSensor() {
 func (s *Sensor) SetHumiditySensor() {
 	for {
 		s.M.Lock()
-		s.Data["humidity"] = int64(rand.Intn(100))
+		s.Data[fmt.Sprintf("%s", SensorType(humidity))] = int64(rand.Intn(100))
+		//s.Data["humidity"] = int64(rand.Intn(100))
 		s.M.Unlock()
 
 		time.Sleep(2 * time.Second)
@@ -53,11 +66,11 @@ func (s *Sensor) StartMonitoring() {
 
 // GetTempSensor - Returns latest temp. sensor data
 func (s *Sensor) GetTempSensor() int64 {
-	return int64(931)
-	//s.M.Lock()
-	//defer s.M.Unlock()
+	//return int64(931)
+	s.M.RLock()
+	defer s.M.RUnlock()
 
-	//return s.Data["temp"]
+	return s.Data[fmt.Sprintf("%s", SensorType(temp))]
 }
 
 // GetHumiditySensor - Returns latest temp. sensor data

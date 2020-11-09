@@ -43,5 +43,8 @@ static_resources:
     http2_protocol_options: {}
     lb_policy: round_robin
     hosts: [{ socket_address: { address: __CLUSTER_ADDRESS__, port_value: __CLUSTER_PORT__ }}]
+    #upstream_connection_options:
+      #tcp_keepalive:
+        #keepalive_time: 300
     #load_assignment:
  

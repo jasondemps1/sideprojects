@@ -31,7 +31,6 @@ func (s *server) TempSensor(req *sensorpb.SensorRequest, stream sensorpb.Sensor_
 			log.Println("Error sending metric message ", err)
 		}
 	}
-	return nil
 }
 
 func (s *server) HumiditySensor(req *sensorpb.SensorRequest, stream sensorpb.Sensor_HumiditySensorServer) error {
@@ -47,7 +46,6 @@ func (s *server) HumiditySensor(req *sensorpb.SensorRequest, stream sensorpb.Sen
 			log.Println("Error sending metric message ", err)
 		}
 	}
-	return nil
 }
 
 var (
