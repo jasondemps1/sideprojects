@@ -29,7 +29,6 @@ type Sensor struct {
 func NewSensor() *Sensor {
 	return &Sensor{
 		Data: make(map[string]int64),
-		//M:    sync.RWMutex{},
 	}
 }
 
@@ -49,7 +48,6 @@ func (s *Sensor) SetHumiditySensor() {
 	for {
 		s.M.Lock()
 		s.Data[fmt.Sprintf("%s", SensorType(humidity))] = int64(rand.Intn(100))
-		//s.Data["humidity"] = int64(rand.Intn(100))
 		s.M.Unlock()
 
 		time.Sleep(2 * time.Second)
@@ -66,7 +64,6 @@ func (s *Sensor) StartMonitoring() {
 
 // GetTempSensor - Returns latest temp. sensor data
 func (s *Sensor) GetTempSensor() int64 {
-	//return int64(931)
 	s.M.RLock()
 	defer s.M.RUnlock()
 
@@ -75,9 +72,8 @@ func (s *Sensor) GetTempSensor() int64 {
 
 // GetHumiditySensor - Returns latest temp. sensor data
 func (s *Sensor) GetHumiditySensor() int64 {
-	return int64(498)
-	//s.M.Lock()
-	//defer s.M.Unlock()
+	s.M.RLock()
+	defer s.M.RUnlock()
 
-	//return s.Data["humidity"]
+	return s.Data[fmt.Sprintf("%s", SensorType(humidity))]
 }

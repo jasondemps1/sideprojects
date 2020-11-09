@@ -76,7 +76,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	sensorpb.RegisterSensorServer(s, &server{})
+	sensorpb.RegisterSensorServer(s, &server{Sensor: sns})
 
 	log.Printf("Starting server on: %s\n", addr)
 
