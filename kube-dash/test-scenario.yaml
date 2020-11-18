@@ -1,3 +1,20 @@
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: sensor-service
+spec:
+  type: 0
+  resourceID: /subscriptions/22dad228-206b-434c-be66-d19228f01226/resourceGroups/AKSSandboxMI/providers/Microsoft.ManagedIdentity/userAssignedIdentities/keda-operator-identity1
+  clientID: 4f6d5141-9e70-4690-b51a-9c8d860d8a12
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: sensor-service
+spec:
+  azureIdentity: sensor-service
+  selector: sensor-service
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -24,6 +41,7 @@ spec:
     metadata:
       labels:
         app: sensor-server
+        aadpodidbinding: sensor-service
     spec:
       containers:
       - name: sensor-server
@@ -119,3 +137,38 @@ spec:
   - name: web
     port: 8000
   type: LoadBalancer
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: azure-servicebus-auth
+spec:
+  podIdentity:
+    provider: azure
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: sensor-server
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: sensor-server
+  pollingInterval: 30                                # Optional. Default: 30 seconds
+  cooldownPeriod:  300                               # Optional. Default: 300 seconds
+  minReplicaCount: 1                                 # Optional. Default: 0
+  maxReplicaCount: 100                               # Optional. Default: 100
+  advanced:                                          # Optional. Section to specify advanced options
+    restoreToOriginalReplicaCount: true              # Optional. Default: false
+  triggers:
+  - type: azure-servicebus
+    metadata:
+      # Required: queueName OR topicName and subscriptionName
+      queueName: keda-test1
+      #subscriptionName: 'Microsoft Azure Internal Consumption' #sbtopic-sub1
+      # Optional, required when pod identity is used
+      namespace: akssandbox
+      # Optional
+      messageCount: "5" # Optional. Count of messages to trigger scaling on. Default: 5 messages
+    authenticationRef:
+        name: azure-servicebus-auth
